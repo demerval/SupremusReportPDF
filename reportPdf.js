@@ -1,5 +1,6 @@
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
+const TextConfig = require('./textConfig');
 
 const defaultMargins = {
   top: 20, left: 10, right: 10, bottom: 0
@@ -111,7 +112,9 @@ class ReportPDF {
       for (let config of this.titleConfig) {
         let x = config.x ? config.x : 0;
         let width = config.width ? config.width : this.pageWidth;
-        this.texto(config, fontNormal, config.text, 0, this.pdfDoc.y, width);
+        let textConfig = new TextConfig(config);
+
+        this.texto(textConfig, config.text, 0, this.pdfDoc.y, width);
       }
 
       this.pdfDoc.y += 2;
@@ -140,7 +143,10 @@ class ReportPDF {
       ww = (this.pdfDoc.x + width);
       x = this.pdfDoc.x;
 
-      this.texto(column, fontBold, column.title, x, y, width);
+      let textConfig = new TextConfig(column);
+      textConfig.fontBold = true;
+
+      this.texto(textConfig, column.title, x, y, width);
       this.borda(x, y, width);
     }
   }
@@ -164,10 +170,18 @@ class ReportPDF {
       x = this.pdfDoc.x;
 
       let value = values[column.name];
-      this.texto(column, fontNormal, value, x, y, width);
+      let textConfig = new TextConfig(column);
+
+      if (column.value !== undefined && typeof column.value === 'function') {
+        let ret = column.value(value, textConfig);
+        value = ret.value;
+        textConfig = ret.config;
+      }
+
+      this.texto(textConfig, value, x, y, width);
+      this.borda(x, y, width);
     }
 
-    this.linha(0, y, this.pageWidth);
   }
 
   addPageNumber() {
@@ -186,23 +200,20 @@ class ReportPDF {
     this.pdfDoc.flushPages();
   }
 
-  texto(column, font, text, x, y, width) {
-    let color = column.color ? column.color : '#000000';
-    let align = column.align ? column.align : 'left';
-    let fontSize = column.fontSize ? column.fontSize : 8;
-
-    this.pdfDoc.font(font)
-      .fontSize(fontSize)
-      .fillColor(color)
+  texto(textConfig, text, x, y, width) {
+    let h = this.pdfDoc.heightOfString(text, { ...textConfig });
+    
+    this.pdfDoc.font(textConfig.getFont())
+      .fontSize(textConfig.fontSize)
+      .fillColor(textConfig.color)
       .text(
         text,
         x + this.margins.left + this.paddingTextLeft,
         y,
         {
           width: width - this.paddingTextRight,
-          align: align,
-          lineGap: 0.5,
-          lineBreak: false
+          height: h,
+          ...textConfig
         }
       );
   }
@@ -211,7 +222,7 @@ class ReportPDF {
     let h = this.pdfDoc.heightOfString('W');
     this.pdfDoc.lineJoin('miter')
       .lineWidth(0.1)
-      .rect(x + this.margins.left, y, w, h)
+      .rect(x + this.margins.left, y, w, h + 0.5)
       .stroke();
   }
 
