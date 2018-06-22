@@ -1,0 +1,9 @@
+{
+  "name": "SupremusReportPDF",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "pdfkit": "^0.8.3"
+  }
+}
