@@ -13,6 +13,7 @@ class TextConfig {
       this.lineBreak = column.lineBreak ? column.lineBreak : false;
       this.ellipsis = column.ellipsis ? column.ellipsis : true;
       this.columns = column.columns ? column.columns : 1;
+      this.underline = column.underline ? true : false;
     } else {
       this.color = '#000000';
       this.align = 'left';
@@ -22,6 +23,7 @@ class TextConfig {
       this.lineBreak = false;
       this.ellipsis = true;
       this.columns = 1;
+      this.underline = false;
     }
   }
 
