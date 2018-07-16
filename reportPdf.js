@@ -1,5 +1,6 @@
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
+const blobStream = require('blob-stream');
 const TextConfig = require('./textConfig');
 const moment = require('moment');
 const format = require('./format');
@@ -41,7 +42,7 @@ class ReportPDF {
     this.paddingTextRight = (this.paddingTextLeft * 2);
 
     this.pdfDoc = new PDFDocument(config.pdf);
-    this.pdfDoc.pipe(fs.createWriteStream(file));
+    this.stream = this.pdfDoc.pipe(blobStream());
     this.variaves = new Map();
     this.userName = userName;
     this.isGroup = false;
@@ -67,7 +68,7 @@ class ReportPDF {
     }
   }
 
-  create(values) {
+  create(values, res) {
     this.pdfDoc.addPage();
 
     this.sizePageWidth = this.pdfDoc.page.width;
@@ -118,6 +119,9 @@ class ReportPDF {
     }
 
     this.pdfDoc.end();
+    this.stream.on('finish', () => {
+      res.send(stream.toBlobURL('application/pdf'));
+    });
   }
 
   groupHeader(values) {
