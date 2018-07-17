@@ -121,7 +121,7 @@ class ReportPDF {
     this.pdfDoc.end();
     this.stream.on('finish', () => {
       res.contentType("application/pdf");
-      res.send(this.stream.toBuffer().toString('base64'));
+      res.send(this.stream.toBuffer());
     });
   }
 
