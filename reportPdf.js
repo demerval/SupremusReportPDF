@@ -120,8 +120,7 @@ class ReportPDF {
 
     this.pdfDoc.end();
     this.stream.on('finish', () => {
-      res.contentType("application/pdf");
-      res.send(this.stream.toBuffer());
+      res.end(this.stream.toBuffer(), 'binary');
     });
   }
 
