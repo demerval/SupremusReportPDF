@@ -1,5 +1,5 @@
-const fontNormal = __dirname + './fonts/DejaVuSans.ttf';
-const fontBold = __dirname + './fonts/DejaVuSans-Bold.ttf';
+const fontNormal = __dirname + '/fonts/DejaVuSans.ttf';
+const fontBold = __dirname + '/fonts/DejaVuSans-Bold.ttf';
 
 class TextConfig {
 
